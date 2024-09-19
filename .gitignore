@@ -1,0 +1,7 @@
+__pycache__/
+flask_session/
+neotab_venv/
+cont_db.csv
+static/msds/FR/*
+static/msds/EN/*
+.DS_Store

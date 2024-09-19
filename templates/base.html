@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        <meta charset="utf-8">
+        <style>
+            .vertical-center {
+              margin: 0;
+              position: relative;
+              top: 35%;
+              transform: translateY(-50%);
+            }
+            .carousel-control-next-icon,
+            .carousel-control-prev-icon /*, .carousel-indicators */ {
+                filter: invert(100%);
+                box-shadow: 0px 0px 7px 2px #000000a1;
+            }
+        </style>
+        <script src="/static/js/scannerinput.js"></script>
+    </head>
+    <body>
+      <!-- Request Modal -->
+      <div class="modal fade" id="requestModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="requestModalLabel" tabindex=1>Send Request to Order Tracker ?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              {% block req_modal_text %}{% endblock %}
+              <br>
+              <label for="request-quantity" class="form-label">Quantity :</label>
+              <form method="POST", action="{{ url_for('ot_request')}}" class="d-flex">
+                <input type="number" min="1" onkeyup="if(value<1)" value="1" class="form-control" id="request-quantity" name="request-quantity">
+                <button type="submit" class="btn btn-success mx-auto d-block">Request</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opened Modal -->
+      <div class="modal fade" id="openedModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="openedModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="openedModalLabel">Mark container as opened ?</h5>
+              <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <label for="date-opened" class="form-label">Date Opened :</label>
+              <form method="POST", action="{{ url_for('mark_opened')}}" class="d-flex">
+              <input type="date" value={% block today %}{% endblock %} id="date-opened" class="form-control" name="date-opened">
+                <button type="submit" class="btn btn-warning mx-auto d-block">
+                  <i class="bi bi-scissors"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty Modal -->
+      <div class="modal fade" id="emptyModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="emptyModalLabel">Mark container as empty ?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <label for="mark-empty" class="form-label">Confirm that the container is empty ? This cannot be undone</label>
+              <form method="POST", action="{{ url_for('mark_empty')}}" class="d-flex">
+                <button type="submit" id="mark-empty" class="btn btn-danger mx-auto d-block">Mark Empty</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Move Modal -->
+      <div class="modal fade" id="moveModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="moveModalLabel">Move container ?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <label for="move-location-bcode" class="form-label">Location Barcode :</label>
+              <form method="POST", action="{{ url_for('move_location')}}" class="d-flex">
+              <input type="text" id="move-location-bcode" class="form-control" name="move-location-bcode">
+                <button type="submit" class="btn btn-warning mx-auto d-block">
+                  <i class="bi bi-truck"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">
+          <img src="/static/neoplants_logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-top" alt="">
+          Neotab
+        </a>
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <!--
+          <li class="nav-item">
+            <a class="nav-link" href="#">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">SOPs</a>
+          </li>
+          -->
+
+          <li class="nav-item">
+            <form class="form-inline my-2 my-lg-0" method="POST", action="{{ url_for('search')}}" class="d-flex" autocomplete="off">
+              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="searchBar" name="searchBar" onfocus="" autofocus>
+              <button type="submit" class="btn btn-outline-success my-2 my-sm-0">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </li>
+        </ul>
+        <a href="/refresh">
+          <button type="button" class="btn btn-info">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Refresh DB
+          </button>
+        </a>
+      </nav>
+      <div class="row h-75">
+        <div class="col my-auto">
+        {% block content %}
+        {% endblock %}
+        </div>
+          </div>
+      <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    </body>
+</html>

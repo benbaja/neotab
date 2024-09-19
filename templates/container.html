@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+<html>
+    <head>
+        <title>{{ metadata_dict.name }} - {{ metadata_dict["name"] }}</title>
+    </head>
+    <body>
+    {% block today %}{{ today_date }}{% endblock %} <!-- stores today date in a block to be used by the "Opened" modal, extended from base.html -->
+    {% block content %}
+    <!-- Below are warnings shown to the user after using buttons -->
+        {% if USE_TEST_INSTANCE=='True' %}
+            <div class="alert alert-warning" role="alert">
+                    Neotab is currently running on the test instance of Benchling (neoplantstest.benchling.com)
+            </div> 
+        {% endif %}
+        <div class="container text-center">
+            {% if alert=='req_failed'%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Adding the request to the Order Tracker failed. Please try again or contact an admin
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            
+            {% if alert=='req_success'%}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Request successfully added to the Order Tracker !
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            {% if alert=='open_failed'%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Setting the container to "Open" failed. Please try again or contact an admin
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            
+            {% if alert=='open_success'%}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Container successfully set as opened on {{ metadata_dict["opened"] }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            {% if alert=='empty_failed'%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Archiving the container failed. Please try again or contact an admin
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            
+            {% if alert=='empty_success'%}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Container successfully set as empty
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            {% if alert=='move_failed'%}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Moving the container failed. Please check the barcode or contact an admin
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            
+            {% if alert=='move_success'%}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Container successfully moved
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <!-- Actual document, populated from the metadata_dict -->
+            <h1>{{ metadata_dict["name"] }}</h1>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            {{ metadata_dict["name"] }}
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text"></p>
+                            <p class="card-text">Supplier : {{ metadata_dict["supplier"] }}</p>
+                            <p class="card-text">Reference : {{ metadata_dict["ref"] }}</p>
+                            {% if metadata_dict["grade"] %}
+                            <p class="card-text">Grade : {{ metadata_dict["grade"] }}</p>
+                            {% endif %}
+                            <p class="card-text">Stock remaining : {{ metadata_dict["boxes_count"] }}</p>
+                            <div class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#requestModal">Request more</button>
+                                </div>
+                                {% if metadata_dict["msds_fr"] or metadata_dict["msds_en"] %}
+                                <div class="col">
+                                    <form method="POST", action="{{ url_for('display_msds')}}">
+                                        <button type="submit" class="btn btn-info">Read MSDS</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            Container n°{{ metadata_dict.name }}
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Location : {{ metadata_dict["location_display_name"] }}</p>
+                            {% if metadata_dict["quantity"] %}
+                                <p class="card-text">Quantity : {{ metadata_dict["quantity"] }} {{ metadata_dict["units"] }}</p>
+                            {% endif %}
+                            {% if metadata_dict["delivered"] %}
+                            <p class="card-text">Delivered : {{ metadata_dict["delivered"] }}</p>
+                            {% endif %}
+                            {% if metadata_dict["opened"] %}
+                            <p class="card-text">Opened : {{ metadata_dict["opened"] }}</p>
+                            {% endif %}
+                            {% if metadata_dict["expiry"] %}
+                            <p class="card-text">Expiry : {{ metadata_dict["expiry"] }}</p>
+                            {% endif %}
+                            <p class="card-text">Empty : {{ metadata_dict["archived"] }}</p>
+                            {% if metadata_dict["archived"]==False %}
+                                {% if metadata_dict["opened"]==None %}
+                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#openedModal">Mark as opened</button>
+                                {% endif %}
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#emptyModal">Mark as empty</button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moveModal">Move</button>
+                            {% endif %}
+                            <!-- <button type="button" class="btn btn-primary">Move</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% endblock %}
+
+    {% block req_modal_text %}
+        <div>Adding "{{ metadata_dict["name"] }}" to the Order Tracker </div>
+        <div>(Supplied by {{ metadata_dict["supplier"] }}, reference #{{ metadata_dict["ref"] }})</div>
+    {% endblock %}
+    </body>
+
+</html>

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+<html>
+    <head>
+        <title>Neotab - Home</title>
+    </head>
+    <body>
+    {% block content %}
+        {% if USE_TEST_INSTANCE=='True' %}
+            <div class="alert alert-warning" role="alert">
+                Neotab is currently running on the test instance of Benchling (neoplantstest.benchling.com)
+            </div> 
+        {% endif %}
+        <div class="container text-center">
+            <div class="row">
+              <div class="col"></div>
+              <div class="col">
+                <label for="searchBar" class="form-label">Search or scan barcode</label>
+                    <form method="POST", action="{{ url_for('search')}}" class="d-flex" autocomplete="off">
+                        <input type="search" class="form-control" id="searchBar" name="searchBar" onfocus="" autofocus>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+              </div>
+              <div class="col">
+              </div>
+            </div>
+        </div>
+    {% endblock %}
+    </body>
+
+</html>
