@@ -1,3 +1,10 @@
+## Neotab
+
+Laboratory consumables management system using Benchling entities and containers system. Conceived to be hosted on a server and served from digital tablets equiped with barcode reader in strategic laboratory rooms.
+
+One tool in a scrapped ecosystem of laboratory management automation tools to streamline consumables ordering and avoid shortages
+
+
 The stack in a nutshell :
 -
 
